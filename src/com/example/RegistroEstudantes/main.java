@@ -2,57 +2,58 @@ package com.example.RegistroEstudantes;
 
 import java.util.Scanner;
 
+import com.example.RegistroEstudantes.exceptions.NotaInvalidaException;
+
 public class main { 
 	static String opcao;
 	static int running = 1;
 	static int MAX = 100;
 	static int count = 0;
-	static String[] nomes = new String[MAX];
-	static Float[] av1s = new Float[MAX];
-	static Float[] av2s = new Float[MAX];
+	static Aluno[] alunos= new Aluno[MAX];
+
 	
 	static Scanner s = new Scanner(System.in);
 	
-	private static float inputValidNote () {
+	private static float inputValidNote () throws NotaInvalidaException {
 		String note = s.nextLine();
 		if(!note.matches("[-+]?[0-9]*\\.?[0-9]+")) {
-			return -1;
+			throw new NotaInvalidaException("A nota informada tem caracteres invalidos");
 		}
 		Float noteFloat = Float.parseFloat(note);
 		if(noteFloat < 0 || noteFloat >10) {
-			System.out.println("A nota deve estar no intervalo entre 0 e 10");
-			return -1;
+			throw new NotaInvalidaException("A nota deve estar no intervalo entre 0 e 10");
 		}
 		return noteFloat;
 	}
 	
 	private static void registerStudent() {
-		if(count+1 >= MAX) {
-			System.out.println("Maximo de alunos atingido");
-			return;
-		}
-		System.out.println("Digite o nome do estudante");
-		String name = s.nextLine();
-		System.out.println("Digite a AV1");
-		float nota1 = inputValidNote();
-		if(nota1<0) {
-			System.out.println("Nota 1 invalida");
-			return;
-		}
-		System.out.println("Digite a AV2");
-		float nota2 = inputValidNote();
-		if(nota2<0) {
-			System.out.println("Nota 2 invalida");
-			return;
-		}
+		try {
+			
+			if(count+1 >= MAX) {
+				throw new NotaInvalidaException("Maximo de alunos atingido");
+			}
 		
-		
-		nomes[count] = name;
-		av1s[count] =  nota1;
-		av2s[count] = nota2;
-		
-		System.out.println("Aluno Cadastrado com sucesso! Seu codigo: "+count);
-		count = count+1;
+			System.out.println("Digite o primeiro nome do estudante");
+			String name = s.nextLine();
+			System.out.println("Digite o segundo nome do estudante");
+			String name2 = s.nextLine();
+			System.out.println("Digite o ultimo nome do estudante");
+			String name3 = s.nextLine();
+			
+			System.out.println("Digite a AV1");
+			float nota1 = inputValidNote();
+			System.out.println("Digite a AV2");
+			float nota2 = inputValidNote();
+			Aluno aluno = new Aluno(name,name2,name3);
+			aluno.setAv1(nota1);
+			aluno.setAv2(nota2);
+			alunos[count] = aluno;
+			
+			System.out.println("Aluno Cadastrado com sucesso! Seu codigo: "+count);
+			count = count+1;
+		}catch(NotaInvalidaException ex) {
+			System.out.println("Erro: "+ ex.getMessage());
+		}
 	}
 	
 	private static float calculaMedia(float nota1,float nota2) {
@@ -82,8 +83,8 @@ public class main {
 		try {
 			int codeInt = Integer.parseInt(code);
 			System.out.println("codeInt: "+codeInt);
-			System.out.println("Aluno: "+nomes[codeInt]);
-			printSituacao(av1s[codeInt],av2s[codeInt]);
+			System.out.println("Aluno: " + alunos[codeInt].getNome());
+			alunos[codeInt].printSituacao();
 			
 		}catch(Exception e) {
 			System.out.println("Codigo invalido, Aluno nao encontrado");
@@ -96,8 +97,7 @@ public class main {
 			return;
 		}
 		for ( int i = 0; i < count ; i++ ) {
-			float media = calculaMedia(av1s[i],av2s[i]); 
-			System.out.println("["+i+"] Aluno:" + nomes[i]+" Nota 1:"+ av1s[i] +" Nota 2:"+av2s[2]+" Media: "+ media + " Situacao: "+checkSituacao(media)) ;
+			System.out.println("["+i+"] Aluno:" + alunos[i].getNome()+" Nota 1:"+ alunos[i].av1 +" Nota 2:"+alunos[i].av2+" Media: "+ alunos[i].calculaMedia()+ " Situacao: "+alunos[i].checkSituacao()) ;
 		}
 		System.out.println("Pressione qualquer teclap para sair");
 		s.nextLine();
